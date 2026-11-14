@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="h-full" data-entry="app">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex" />
+    <meta name="playdrop-entry" content="app" />
+    <meta name="playdrop-release" content="92f53c80991f4b9dd5859f1f96abdf22308269a2" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FFFFFF" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0A0A0A" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>PlayDrop</title>
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="icon" href="/branding/playdrop/favicon.svg" type="image/svg+xml" sizes="any" />
+    <link rel="apple-touch-icon" href="/branding/playdrop/playdrop-icon.png" sizes="1254x1254" />
+    <script>
+      // Before first paint: the language and direction from the URL prefix, then the query's `lang`, then the
+      // NEXT_LOCALE cookie, then the browser (src/i18n.tsx confirms it), and the Appearance choice next-themes stores
+      // ("theme", dark by default).
+      (() => {
+        const prefixes = {"en":["en","ltr"],"fr":["fr","ltr"],"de":["de","ltr"],"ja":["ja","ltr"],"ko":["ko","ltr"],"es":["es","ltr"],"pt-br":["pt-BR","ltr"],"id":["id","ltr"],"zh-hant":["zh-Hant","ltr"],"zh-hans":["zh-Hans","ltr"],"it":["it","ltr"],"pl":["pl","ltr"],"nl":["nl","ltr"],"sv":["sv","ltr"],"nb":["nb","ltr"],"fi":["fi","ltr"],"tr":["tr","ltr"],"th":["th","ltr"],"vi":["vi","ltr"],"ar":["ar","rtl"]};
+        const root = document.documentElement;
+        const byLocale = Object.fromEntries(Object.values(prefixes).map((entry) => [entry[0], entry]));
+        const cookie = /(?:^|;\s*)NEXT_LOCALE=([^;]+)/.exec(document.cookie);
+        const language = (navigator.language || "en").toLowerCase();
+        const entry = prefixes[location.pathname.split("/")[1]] || byLocale[new URLSearchParams(location.search).get("lang")]
+          || (cookie && byLocale[decodeURIComponent(cookie[1])])
+          || Object.values(prefixes).find((candidate) => candidate[0].toLowerCase() === language)
+          || prefixes[language.split("-")[0]] || prefixes.en;
+        root.lang = entry[0];
+        root.dir = entry[1];
+        let theme = "dark";
+        try { theme = localStorage.getItem("theme") || "dark"; } catch (error) {}
+        if (theme === "system") theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        root.classList.add(theme === "light" ? "light" : "dark");
+        root.style.colorScheme = theme === "light" ? "light" : "dark";
+      })();
+    </script>
+    <!-- A game page in a Windows browser that has the PlayDrop app opens it there (packages/screens/src/lib/windows-app-handoff-script.ts). -->
+    <script>(function playdropWindowsAppHandoff() {
+  try {
+    if (window.__playdropWindowsAppHandoff) return;
+    var ua = navigator.userAgent || "";
+    if (!/Windows NT \d/.test(ua) || /Windows Phone|IEMobile|Mobile|Android|iPhone|iPad|iPod|Tablet|Xbox|PlayDropNativeEmbed/i.test(ua) || !/(?:Chrome|Chromium|Edg)\/\d/.test(ua)) return;
+    var pathname = location.pathname;
+    var localized = /^\/([^/]+)(\/.*)?$/.exec(pathname);
+    if (localized && ["fr","de","ja","ko","es","pt-br","id","zh-hant","zh-hans","it","pl","nl","sv","nb","fi","tr","th","vi","ar"].indexOf(localized[1]) >= 0) pathname = localized[2] || "/";
+    var game = /^\/(?:@|%40)([^/]+)\/([^/]+)\/?$/i.exec(pathname);
+    if (!game) return;
+    var segments = [];
+    for (var index = 1; index <= 2; index++) {
+      var segment = decodeURIComponent(game[index]);
+      if (!segment || segment !== segment.trim() || /^[.]+$/.test(segment) || /[\\/\u0000-\u001f\u007f?#]/.test(segment)) return;
+      segments.push(encodeURIComponent(segment));
+    }
+    var search = new URLSearchParams(location.search);
+    if (search.get("web") === "1") return;
+    var host = window;
+    if ("PlayDropNativeContext" in host || "playdropStudioHost" in host
+      || (host.webkit && host.webkit.messageHandlers && host.webkit.messageHandlers.playdropNativeEmbed)
+      || document.documentElement.dataset.nativeEmbed === "true" || /PlayDropNativeEmbed/i.test(ua)
+      || (host.chrome && host.chrome.webview) || window.top !== window) return;
+    var entry = performance.getEntriesByType ? performance.getEntriesByType("navigation")[0] : null;
+    if (document.readyState !== "loading" || (entry && entry.type === "back_forward")) return;
+    var marker = null;
+    try { marker = localStorage.getItem("playdrop:windows-app"); } catch (error) { return; }
+    if (marker === null) return;
+    var tabChoseWeb = true;
+    try { tabChoseWeb = sessionStorage.getItem("playdrop:windows-app-web") !== null; } catch (error) { return; }
+    if (tabChoseWeb) return;
+    var carried = new URLSearchParams();
+    ["p","v","via"].forEach(function (key) {
+      var value = (search.get(key) || "").trim();
+      if (value) carried.set(key, value);
+    });
+    var query = carried.toString();
+    var address = "https://www.playdrop.ai" + "/@" + segments[0] + "/" + segments[1] + (query ? "?" + query : "");
+    var link = "playdrop://open?url=" + encodeURIComponent(address);
+    window.__playdropWindowsAppHandoff = link;
+    var launched = false;
+    var launch = function () {
+      if (launched || document.prerendering || document.visibilityState === "hidden") return;
+      launched = true;
+      document.removeEventListener("visibilitychange", launch);
+      document.removeEventListener("prerenderingchange", launch);
+      try {
+        var frame = document.createElement("iframe");
+        frame.setAttribute("aria-hidden", "true");
+        frame.tabIndex = -1;
+        frame.style.display = "none";
+        frame.src = link;
+        (document.body || document.head || document.documentElement).appendChild(frame);
+        document.documentElement.dataset["windowsAppHandoff"] = "opening";
+        window.dispatchEvent(new Event("playdrop-windows-app-handoff"));
+      } catch (error) {}
+    };
+    document.addEventListener("visibilitychange", launch);
+    document.addEventListener("prerenderingchange", launch);
+    launch();
+  } catch (error) {}
+})();</script>
+    <script>
+      // The install prompt fires before the app loads (copied from apps/web/app/web-internal/[lang]/layout.tsx).
+      (() => {
+        if (window.__playdropPwaCaptureInstalled) return;
+        window.__playdropPwaCaptureInstalled = true;
+        window.__playdropDeferredInstallPrompt = window.__playdropDeferredInstallPrompt ?? null;
+        window.__playdropInstallPromptAvailable = window.__playdropInstallPromptAvailable ?? false;
+        window.addEventListener("beforeinstallprompt", (event) => {
+          event.preventDefault();
+          window.__playdropDeferredInstallPrompt = event;
+          window.__playdropInstallPromptAvailable = true;
+        });
+        window.addEventListener("appinstalled", () => {
+          window.__playdropDeferredInstallPrompt = null;
+          window.__playdropInstallPromptAvailable = false;
+        });
+      })();
+      // A script or stylesheet of the app that fails to load turns the launch state into Retry (a reload the user asks for).
+      window.addEventListener("error", (event) => {
+        const target = event.target;
+        const url = target && (target.src || target.href);
+        const shell = document.getElementById("app-shell");
+        if (url && url.includes("/_next/static/player/") && shell && shell.dataset.appState !== "ready") shell.dataset.appState = "retry";
+      }, true);
+    </script>
+    <style>
+      html, body { margin: 0; min-height: 100%; }
+      #launch { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+      #app-shell[data-app-state="ready"] #launch { display: none; }
+      /* An account change or an update covers the app until the reload: nothing of the old account stays visible. */
+      #app-shell:not([data-app-state="ready"]) > #root { visibility: hidden; }
+      #app-shell[data-app-state="update"] #launch { z-index: 200; }
+      #launch [data-launch-panel] { display: none; }
+      #app-shell[data-app-state="launching"] [data-launch-panel="launching"],
+      #app-shell[data-app-state="retry"] [data-launch-panel="retry"],
+      #app-shell[data-app-state="update"] [data-launch-panel="update"],
+      #app-shell[data-app-state="sign-in"] [data-launch-panel="sign-in"] { display: flex; }
+      /* From a list to a game (platform Link runs the browser's view transition through the router): the card art the
+         tap left from and the game's hero share one name, so the art grows into the hero while the rest cross-fades.
+         The hero is a listing's stage, or an instant game's settled card in the feed; before the detail arrives the
+         route paints the same hero from the list's card (routes/game-placeholder.tsx). Reduce Motion keeps the
+         navigation and drops the animation. */
+      :root:active-view-transition img[data-view-transition-source],
+      :root:active-view-transition [data-screen="game"] .regular-game-stage,
+      :root:active-view-transition [data-screen="game"] .instant-feed-page:not([aria-hidden]) .instant-mode-card { view-transition-name: game-hero; }
+      @media (prefers-reduced-motion: reduce) {
+        ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+      }
+    </style>
+    <script type="module" crossorigin src="/_next/static/player/assets/index-BVe-SGZu.js"></script>
+    <link rel="stylesheet" crossorigin href="/_next/static/player/assets/index-BN-O__fr.css">
+  </head>
+  <body class="bg-background text-foreground antialiased" data-google-analytics-id="G-43BYD5Y45N">
+    <div id="app-shell" data-app-state="launching">
+      <div id="launch" class="bg-background px-4 text-center" aria-live="polite">
+        <!-- Launching shows nothing (owner, October 20, 2026): the screen fills in once the app is ready. -->
+        <div data-launch-panel="launching" class="flex-col items-center" role="status">
+          <span class="sr-only">PlayDrop</span>
+        </div>
+        <div data-launch-panel="retry" class="max-w-sm flex-col items-center gap-4">
+          <img src="/branding/playdrop/playdrop-glyph-color.svg" alt="" width="48" height="48" />
+          <p class="text-sm text-muted-foreground" data-launch-text="Common.errors.errorDescription">Something broke on our side. Try again in a moment.</p>
+          <button type="button" data-launch-action="retry" data-launch-text="Common.retry"
+            class="inline-flex h-10 items-center justify-center rounded-(--radius) bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-gradient-top active:inset-shadow-pressed">Retry</button>
+        </div>
+        <div data-launch-panel="update" class="max-w-sm flex-col items-center gap-4">
+          <img src="/branding/playdrop/playdrop-glyph-color.svg" alt="" width="48" height="48" />
+          <p class="text-sm text-muted-foreground">A new version of PlayDrop is ready.</p>
+          <button type="button" data-launch-action="reload"
+            class="inline-flex h-10 items-center justify-center rounded-(--radius) bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-gradient-top active:inset-shadow-pressed">Reload</button>
+        </div>
+        <div data-launch-panel="sign-in" class="max-w-sm flex-col items-center gap-4">
+          <img src="/branding/playdrop/playdrop-glyph-color.svg" alt="" width="48" height="48" />
+          <a href="/login" data-launch-sign-in data-launch-text="Core.auth.logIn"
+            class="inline-flex h-10 items-center justify-center rounded-(--radius) bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-gradient-top active:inset-shadow-pressed">Log in</a>
+        </div>
+      </div>
+      <div id="root"></div>
+    </div>
+    <script>
+      // Until the app has loaded, Retry reloads; the app replaces it with a new launch that keeps the page.
+      document.addEventListener("click", (event) => {
+        const action = event.target instanceof Element && event.target.closest("[data-launch-action]");
+        if (!action) return;
+        if (action.dataset.launchAction === "retry" && window.__playdropRelaunch) window.__playdropRelaunch();
+        else location.reload();
+      });
+    </script>
+  </body>
+</html>

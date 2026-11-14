@@ -1,0 +1,31 @@
+{
+  "id": "/",
+  "name": "PlayDrop",
+  "short_name": "PlayDrop",
+  "description": "Make games with AI on PlayDrop Cloud or with your own agent, then publish and play instantly.",
+  "start_url": "/",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/branding/playdrop/playdrop-icon.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/branding/playdrop/playdrop-icon.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/branding/playdrop/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "theme_color": "#0A0A0A",
+  "background_color": "#0A0A0A",
+  "display": "standalone"
+}
